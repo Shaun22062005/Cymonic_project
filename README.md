@@ -1,2 +1,2 @@
 # cymonic_project
-AI agentic platform to determine the reimbursement for employees following the travel and expense policies
+An AI-powered expense auditor that automates corporate reimbursement by intelligently cross-referencing receipts against complex company policies
