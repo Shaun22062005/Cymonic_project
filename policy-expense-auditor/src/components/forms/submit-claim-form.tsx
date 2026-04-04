@@ -87,7 +87,7 @@ export default function SubmitClaimForm() {
 
   if (status === 'result' && auditResult) {
     console.log('Audit Result:', auditResult);
-    const verdict = auditResult?.audit?.status?.toLowerCase() as any;
+    const verdict = auditResult?.audit?.verdict?.toLowerCase() as any;
     const isApproved = verdict === 'approved' || verdict === 'compliant';
     
     return (
@@ -107,7 +107,7 @@ export default function SubmitClaimForm() {
               <VerdictBadge status={verdict === 'compliant' ? 'approved' : verdict} />
             </div>
             <p className="text-slate-700 leading-relaxed">
-              {auditResult?.audit?.reasoning || auditResult?.audit?.summary}
+              {auditResult?.audit?.reason}
             </p>
           </div>
         </div>
@@ -156,7 +156,7 @@ export default function SubmitClaimForm() {
             <input
               {...register('merchant')}
               className={cn(
-                "w-full px-4 py-2 border rounded-lg outline-none focus:ring-2 focus:ring-slate-400 transition-all",
+                "w-full px-4 py-2 border rounded-lg outline-none focus:ring-2 focus:ring-slate-400 transition-all text-slate-900",
                 errors.merchant ? "border-rose-500 bg-rose-50" : "border-slate-200"
               )}
               placeholder="e.g. Starbucks"
@@ -172,7 +172,7 @@ export default function SubmitClaimForm() {
                 type="number"
                 step="0.01"
                 className={cn(
-                  "w-full px-4 py-2 border rounded-lg outline-none focus:ring-2 focus:ring-slate-400 transition-all",
+                  "w-full px-4 py-2 border rounded-lg outline-none focus:ring-2 focus:ring-slate-400 transition-all text-slate-900",
                   errors.amount ? "border-rose-500 bg-rose-50" : "border-slate-200"
                 )}
                 placeholder="0.00"
@@ -183,7 +183,7 @@ export default function SubmitClaimForm() {
               <label className="text-sm font-bold text-slate-700">Currency</label>
               <select
                 {...register('currency')}
-                className="w-full px-4 py-2 border border-slate-200 rounded-lg outline-none focus:ring-2 focus:ring-slate-400 transition-all"
+                className="w-full px-4 py-2 border border-slate-200 rounded-lg outline-none focus:ring-2 focus:ring-slate-400 transition-all text-slate-900"
               >
                 <option value="USD">USD</option>
                 <option value="EUR">EUR</option>
@@ -199,7 +199,7 @@ export default function SubmitClaimForm() {
             <label className="text-sm font-bold text-slate-700">Category</label>
             <select
               {...register('category')}
-              className="w-full px-4 py-2 border border-slate-200 rounded-lg outline-none focus:ring-2 focus:ring-slate-400 transition-all"
+              className="w-full px-4 py-2 border border-slate-200 rounded-lg outline-none focus:ring-2 focus:ring-slate-400 transition-all text-slate-900"
             >
               <option value="Meals">Meals</option>
               <option value="Travel">Travel</option>
@@ -214,7 +214,7 @@ export default function SubmitClaimForm() {
               {...register('expense_date')}
               type="date"
               className={cn(
-                "w-full px-4 py-2 border rounded-lg outline-none focus:ring-2 focus:ring-slate-400 transition-all",
+                "w-full px-4 py-2 border rounded-lg outline-none focus:ring-2 focus:ring-slate-400 transition-all text-slate-900",
                 errors.expense_date ? "border-rose-500 bg-rose-50" : "border-slate-200"
               )}
             />
@@ -228,7 +228,7 @@ export default function SubmitClaimForm() {
             {...register('business_purpose')}
             rows={3}
             className={cn(
-              "w-full px-4 py-2 border rounded-lg outline-none focus:ring-2 focus:ring-slate-400 transition-all resize-none",
+              "w-full px-4 py-2 border rounded-lg outline-none focus:ring-2 focus:ring-slate-400 transition-all resize-none text-slate-900",
               errors.business_purpose ? "border-rose-500 bg-rose-50" : "border-slate-200"
             )}
             placeholder="Describe why this expense was incurred..."

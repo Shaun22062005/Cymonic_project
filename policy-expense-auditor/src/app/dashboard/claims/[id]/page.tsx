@@ -34,6 +34,7 @@ export default function ClaimDetailsPage({ params }: { params: { id: string } })
       claim_id: params.id,
       new_status: formData.get('new_status'),
       justification: formData.get('justification'),
+      manager_id: '00000000-0000-0000-0000-000000000000',
     };
 
     setSubmitting(true);
@@ -84,7 +85,7 @@ export default function ClaimDetailsPage({ params }: { params: { id: string } })
         <div className="lg:w-1/3 border-r bg-slate-100 p-6 overflow-y-auto">
           <div className="bg-white rounded-xl shadow-sm border overflow-hidden p-2">
             <img 
-              src={claim.receipt_url} 
+              src={`${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/receipts/${claim.receipt_storage_path}`} 
               alt="Receipt" 
               className="w-full h-auto rounded-lg"
               onError={(e) => (e.currentTarget.src = 'https://placehold.co/400x600?text=Receipt+Not+Found')}
@@ -115,7 +116,7 @@ export default function ClaimDetailsPage({ params }: { params: { id: string } })
               </div>
               <div className="space-y-1">
                 <p className="text-xs font-bold text-slate-400 uppercase">Date</p>
-                <p className="font-medium text-slate-700">{formatDate(claim.date)}</p>
+                <p className="font-medium text-slate-700">{formatDate(claim.expense_date)}</p>
               </div>
             </div>
             <div className="space-y-2">
@@ -136,8 +137,8 @@ export default function ClaimDetailsPage({ params }: { params: { id: string } })
                 <p className="text-xs font-bold text-slate-400 uppercase">Confidence</p>
                 <p className={cn(
                   "text-lg font-bold",
-                  (claim.confidence_score || 0) < 50 ? "text-rose-600" : "text-emerald-600"
-                )}>{claim.confidence_score || 0}%</p>
+                  (claim.audit_logs?.[0]?.confidence_score || 0) < 50 ? "text-rose-600" : "text-emerald-600"
+                )}>{claim.audit_logs?.[0]?.confidence_score || 0}%</p>
               </div>
             </div>
             
@@ -146,14 +147,14 @@ export default function ClaimDetailsPage({ params }: { params: { id: string } })
               claim.status === 'rejected' ? "bg-rose-100/50 border-rose-200" : "bg-emerald-100/50 border-emerald-200"
             )}>
               {claim.status === 'rejected' ? <ShieldAlert className="w-5 h-5 text-rose-600" /> : <CheckCircle2 className="w-5 h-5 text-emerald-600" />}
-              <p className="text-sm font-medium text-slate-800">{claim.audit_summary || "Audit complete."}</p>
+              <p className="text-sm font-medium text-slate-800">{claim.audit_logs?.[0]?.reason || "Audit complete."}</p>
             </div>
 
-            {claim.policy_excerpt && (
+            {claim.audit_logs?.[0]?.policy_excerpt && (
               <div className="space-y-2">
                 <p className="text-xs font-bold text-slate-400 uppercase">Referenced Policy</p>
                 <blockquote className="text-sm italic text-slate-600 border-l-4 border-slate-200 pl-4 py-1">
-                  "{claim.policy_excerpt}"
+                  "{claim.audit_logs?.[0]?.policy_excerpt}"
                 </blockquote>
               </div>
             )}

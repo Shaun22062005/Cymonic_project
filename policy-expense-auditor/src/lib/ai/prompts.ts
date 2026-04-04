@@ -8,11 +8,4 @@ You are an expert financial auditor. Extract the following from the receipt imag
 - Line items if available
 `;
 
-export const AUDIT_PROMPT = `
-Compare the following expense claim against the provided company policy chunks.
-Identify any violations or required flags. 
-
-Return the result in structured JSON with exactly these two keys:
-- status: one of "approved", "flagged", or "rejected"
-- reasoning: a concise explanation of the verdict
-`;
+export const AUDIT_PROMPT = `You are a strict corporate expense auditor. Compare the expense claim against the policy chunks provided. Return ONLY a raw JSON object with exactly these four keys: status (one of approved, flagged, or rejected), reason (one sentence explaining the verdict citing the policy), policy_excerpt (the exact policy clause used, never null - if none found use 'General corporate expense guidelines apply'), confidence_score (a decimal between 0.0 and 1.0). No markdown, no extra text.`;

@@ -34,7 +34,7 @@ export default function ClaimsListPage() {
   const filteredClaims = claims.filter(claim => 
     claim.merchant.toLowerCase().includes(searchTerm.toLowerCase()) ||
     claim.category.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    claim.user_id?.toLowerCase().includes(searchTerm.toLowerCase())
+    claim.employee_id?.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   const getStatusBorder = (status: string) => {
@@ -99,13 +99,13 @@ export default function ClaimsListPage() {
                     getStatusBorder(claim.status)
                   )}
                 >
-                  <td className="px-6 py-4 text-sm font-mono text-slate-500">
-                    {claim.user_id?.slice(0, 8)}...
+                  <td className="px-6 py-4 text-sm font-mono text-slate-900">
+                    {claim.employee_id?.slice(0, 8)}...
                   </td>
                   <td className="px-6 py-4 font-bold text-slate-900">{claim.merchant}</td>
-                  <td className="px-6 py-4 font-mono font-bold">{formatCurrency(claim.amount)}</td>
-                  <td className="px-6 py-4 text-sm">{claim.category}</td>
-                  <td className="px-6 py-4 text-sm text-slate-500">{formatDate(claim.date)}</td>
+                  <td className="px-6 py-4 font-mono font-bold text-slate-900">{formatCurrency(claim.amount)}</td>
+                  <td className="px-6 py-4 text-sm text-slate-900">{claim.category}</td>
+                  <td className="px-6 py-4 text-sm text-slate-900">{formatDate(claim.expense_date)}</td>
                   <td className="px-6 py-4">
                     <VerdictBadge status={claim.status.toLowerCase() as any} />
                   </td>
@@ -120,7 +120,7 @@ export default function ClaimsListPage() {
                           style={{ width: `${(claim.confidence_score || 0)}%` }}
                         />
                       </div>
-                      <span className="text-xs font-bold">{(claim.confidence_score || 0)}%</span>
+                      <span className="text-xs font-bold text-slate-900">{(claim.confidence_score || 0)}%</span>
                     </div>
                   </td>
                   <td className="px-6 py-4 text-right">

@@ -34,6 +34,6 @@ export interface AuditLog {
   expense_id: string;
   policy_id: string | null;
   result: 'compliant' | 'flagged' | 'rejected';
-  reasoning: string;
+  reason: string;
   created_at: string;
 }
