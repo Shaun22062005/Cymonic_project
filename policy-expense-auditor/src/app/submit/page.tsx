@@ -1,9 +1,20 @@
 import React from 'react';
+import Link from 'next/link';
+import { ArrowLeft } from 'lucide-react';
 import SubmitClaimForm from '@/components/forms/submit-claim-form';
 
 export default function SubmitClaimPage() {
   return (
     <main className="min-h-screen bg-gray-950 py-12 px-4 sm:px-6 lg:px-8">
+      <div className="max-w-2xl mx-auto pt-6 px-4">
+        <Link
+          href="/dashboard"
+          className="inline-flex items-center gap-2 text-gray-400 hover:text-white transition-colors text-sm font-medium"
+        >
+          <ArrowLeft className="w-4 h-4" />
+          Back to Dashboard
+        </Link>
+      </div>
       <div className="max-w-2xl mx-auto space-y-8">
         <div className="text-center">
           <h1 className="text-4xl font-extrabold text-white tracking-tight">

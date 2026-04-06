@@ -30,13 +30,13 @@ export default function LoginPage() {
           <form onSubmit={handleSignIn} className="space-y-6">
             <div>
               <label htmlFor="email" className="block text-sm font-medium text-gray-400 mb-2">
-                Email
+                Username
               </label>
               <input
                 id="email"
-                type="email"
+                type="text"
                 required
-                placeholder="you@company.com"
+                placeholder="Enter your username"
                 className="bg-gray-800 border border-gray-700 text-white rounded-lg px-4 py-3 w-full focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-transparent transition-all placeholder:text-gray-600"
               />
             </div>

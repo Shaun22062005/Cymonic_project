@@ -4,9 +4,10 @@ import React, { useState, useCallback } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { Upload, Loader2, CheckCircle2, AlertCircle, XCircle } from 'lucide-react';
+import { Upload, Loader2, CheckCircle2, AlertCircle, XCircle, ArrowLeft } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import VerdictBadge from '@/components/claims/verdict-badge';
+import Link from 'next/link';
 
 const schema = z.object({
   merchant: z.string().min(2, 'Merchant must be at least 2 characters'),
@@ -29,6 +30,7 @@ export default function SubmitClaimForm() {
   const {
     register,
     handleSubmit,
+    reset,
     formState: { errors },
   } = useForm<FormData>({
     resolver: zodResolver(schema),
@@ -92,6 +94,14 @@ export default function SubmitClaimForm() {
     
     return (
       <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
+        <Link
+          href="/dashboard"
+          className="inline-flex items-center gap-2 text-gray-400 hover:text-white transition-colors text-sm font-medium"
+        >
+          <ArrowLeft className="w-4 h-4" />
+          Back to Dashboard
+        </Link>
+
         <div className={cn(
           "p-6 rounded-xl border flex gap-4 items-start",
           isApproved ? "bg-emerald-50 border-emerald-100" : "bg-rose-50 border-rose-100"
@@ -124,7 +134,7 @@ export default function SubmitClaimForm() {
         )}
 
         <button 
-          onClick={() => setStatus('idle')}
+          onClick={() => { setStatus('idle'); reset(); setFile(null); }}
           className="w-full py-3 bg-slate-900 text-white rounded-lg font-bold hover:bg-slate-800 transition-colors"
         >
           Submit Another Claim
