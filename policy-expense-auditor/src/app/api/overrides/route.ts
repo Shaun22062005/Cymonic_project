@@ -4,7 +4,6 @@ import { z } from 'zod';
 
 const overrideSchema = z.object({
   claim_id: z.string().uuid(),
-  manager_id: z.string().uuid(),
   new_status: z.string().min(1),
   justification: z.string().min(1),
 });
@@ -21,7 +20,7 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const { claim_id, manager_id, new_status, justification } = validated.data;
+    const { claim_id, new_status, justification } = validated.data;
     const supabase = createServerClient();
 
     // 1. Insert into policy_overrides table
@@ -29,7 +28,7 @@ export async function POST(req: NextRequest) {
       .from('policy_overrides')
       .insert({
         claim_id,
-        manager_id,
+        manager_id: '00000000-0000-0000-0000-000000000000',
         new_status,
         justification,
       })

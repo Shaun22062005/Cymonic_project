@@ -33,8 +33,7 @@ export default function ClaimsListPage() {
 
   const filteredClaims = claims.filter(claim => 
     claim.merchant.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    claim.category.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    claim.employee_id?.toLowerCase().includes(searchTerm.toLowerCase())
+    claim.category.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   const getStatusBorder = (status: string) => {
@@ -73,7 +72,6 @@ export default function ClaimsListPage() {
           <table className="w-full text-left border-collapse">
             <thead>
               <tr className="bg-gray-800 border-b border-gray-700 text-xs uppercase font-bold text-gray-400 tracking-wider">
-                <th className="px-6 py-4">Employee ID</th>
                 <th className="px-6 py-4">Merchant</th>
                 <th className="px-6 py-4">Amount</th>
                 <th className="px-6 py-4">Category</th>
@@ -87,7 +85,7 @@ export default function ClaimsListPage() {
               {loading ? (
                 [...Array(5)].map((_, i) => (
                   <tr key={i} className="animate-pulse">
-                    <td colSpan={8} className="px-6 py-4"><div className="h-8 bg-gray-800 rounded w-full" /></td>
+                    <td colSpan={7} className="px-6 py-4"><div className="h-8 bg-gray-800 rounded w-full" /></td>
                   </tr>
                 ))
               ) : filteredClaims.map((claim) => (
@@ -99,9 +97,6 @@ export default function ClaimsListPage() {
                     getStatusBorder(claim.status)
                   )}
                 >
-                  <td className="px-6 py-4 text-sm font-mono text-gray-400">
-                    {claim.employee_id?.slice(0, 8)}...
-                  </td>
                   <td className="px-6 py-4 font-bold text-white">{claim.merchant}</td>
                   <td className="px-6 py-4 font-mono font-bold text-white">{formatCurrency(claim.amount)}</td>
                   <td className="px-6 py-4 text-sm text-gray-300">{claim.category}</td>

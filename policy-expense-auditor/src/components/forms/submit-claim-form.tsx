@@ -54,7 +54,6 @@ export default function SubmitClaimForm() {
     try {
       const formData = new FormData();
       formData.append('receipt', file);
-      formData.append('employee_id', '00000000-0000-0000-0000-000000000000');
       formData.append('merchant', data.merchant);
       formData.append('amount', String(data.amount));
       formData.append('currency', data.currency);
@@ -145,6 +144,13 @@ export default function SubmitClaimForm() {
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+      <Link
+        href="/dashboard"
+        className="inline-flex items-center gap-2 text-gray-400 hover:text-white transition-colors text-sm font-medium"
+      >
+        <ArrowLeft className="w-4 h-4" />
+        Back to Dashboard
+      </Link>
       <div className="space-y-4">
         <div className="flex flex-col items-center justify-center border-2 border-dashed rounded-xl p-8 bg-gray-800 hover:bg-gray-700 border-gray-600 transition-colors relative cursor-pointer group">
           <input

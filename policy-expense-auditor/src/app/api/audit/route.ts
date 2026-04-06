@@ -34,13 +34,11 @@ export async function POST(req: NextRequest) {
       category: formData.get('category') as string,
       expense_date: formData.get('expense_date') as string,
       business_purpose: formData.get('business_purpose') as string,
-      employee_id: formData.get('employee_id') as string,
     };
 
     const { data: claim, error: claimError } = await supabase
       .from('claims')
       .insert({
-        employee_id: manualData.employee_id,
         merchant: manualData.merchant || extractedData.merchant,
         amount: parseFloat(manualData.amount || extractedData.amount),
         currency: manualData.currency || extractedData.currency,

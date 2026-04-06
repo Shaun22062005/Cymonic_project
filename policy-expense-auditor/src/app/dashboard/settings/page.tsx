@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Upload, FileText, CheckCircle, Loader2, AlertCircle } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -8,6 +8,19 @@ export default function SettingsPage() {
   const [file, setFile] = useState<File | null>(null);
   const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
   const [ingestData, setIngestData] = useState<any>(null);
+
+  useEffect(() => {
+    const saved = localStorage.getItem('policy_upload_state');
+    if (saved) {
+      try {
+        const data = JSON.parse(saved);
+        setStatus('success');
+        setIngestData(data);
+      } catch (e) {
+        console.error("Failed to parse saved policy state", e);
+      }
+    }
+  }, []);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
@@ -31,8 +44,10 @@ export default function SettingsPage() {
       });
       const data = await res.json();
       if (res.ok) {
-        setIngestData(data);
+        const uploadState = { filename: file.name, chunkCount: data.chunkCount };
+        setIngestData(uploadState);
         setStatus('success');
+        localStorage.setItem('policy_upload_state', JSON.stringify(uploadState));
       } else {
         setStatus('error');
       }
@@ -67,31 +82,49 @@ export default function SettingsPage() {
               <FileText className="w-12 h-12 text-slate-400 mx-auto mb-4 group-hover:text-slate-600 transition-colors" />
             )}
             
-            <p className="text-lg font-bold text-white">
-              {file ? file.name : "Click to upload policy PDF"}
+            <p className={cn(
+              "text-lg font-bold",
+              status === 'success' ? "text-emerald-800" : "text-white"
+            )}>
+              {file ? file.name : (ingestData?.filename || "Click to upload policy PDF")}
             </p>
             <p className="text-sm text-gray-500 mt-1">Only PDF files are supported for ingestion.</p>
           </div>
 
-          <button 
-            type="submit"
-            disabled={!file || status === 'loading'}
-            className="w-full py-4 bg-blue-600 text-white rounded-xl font-bold flex items-center justify-center gap-2 hover:bg-blue-700 disabled:opacity-50 transition-all"
-          >
-            {status === 'loading' && <Loader2 className="w-5 h-5 animate-spin" />}
-            {status === 'loading' ? 'Ingesting PDF...' : 'Update Policy Engine'}
-          </button>
+          {status !== 'success' && (
+            <button 
+              type="submit"
+              disabled={!file || status === 'loading'}
+              className="w-full py-4 bg-blue-600 text-white rounded-xl font-bold flex items-center justify-center gap-2 hover:bg-blue-700 disabled:opacity-50 transition-all"
+            >
+              {status === 'loading' && <Loader2 className="w-5 h-5 animate-spin" />}
+              {status === 'loading' ? 'Ingesting PDF...' : 'Update Policy Engine'}
+            </button>
+          )}
         </form>
 
         {status === 'success' && (
-          <div className="p-4 bg-emerald-900/20 border border-emerald-800 rounded-xl flex gap-3 animate-in fade-in slide-in-from-top-2">
-            <CheckCircle className="w-5 h-5 text-emerald-600 flex-shrink-0" />
-            <div>
-              <p className="text-sm font-bold text-emerald-800">Success!</p>
-              <p className="text-sm text-emerald-700">
-                Policy ingested successfully. {ingestData?.chunkCount} knowledge chunks were added to the vector database.
-              </p>
+          <div className="space-y-4">
+            <div className="p-4 bg-emerald-900/20 border border-emerald-800 rounded-xl flex gap-3 animate-in fade-in slide-in-from-top-2">
+              <CheckCircle className="w-5 h-5 text-emerald-600 flex-shrink-0" />
+              <div>
+                <p className="text-sm font-bold text-emerald-800">Success!</p>
+                <p className="text-sm text-emerald-700">
+                  Policy ingested successfully. {ingestData?.chunkCount} knowledge chunks were added to the vector database.
+                </p>
+              </div>
             </div>
+            <button 
+              onClick={() => {
+                localStorage.removeItem('policy_upload_state');
+                setStatus('idle');
+                setFile(null);
+                setIngestData(null);
+              }}
+              className="w-full py-3 bg-gray-800 text-white rounded-xl font-bold hover:bg-gray-700 transition-all"
+            >
+              Upload New Policy
+            </button>
           </div>
         )}
 
