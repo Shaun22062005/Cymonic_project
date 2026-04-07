@@ -34,16 +34,22 @@ export default function DashboardPage() {
     fetchClaims();
   }, []);
 
-  const totalExpenses = claims.reduce((sum, claim) => sum + (Number(claim.amount) || 0), 0);
-  const approvedCount = claims.filter((c) => c.status === 'approved').length;
-  const flaggedCount = claims.filter((c) => c.status === 'flagged').length;
-  const rejectedCount = claims.filter((c) => c.status === 'rejected').length;
+  const totalSubmitted = claims.reduce((sum, claim) => sum + (Number(claim.amount) || 0), 0);
+  const totalReimbursable = claims
+    .filter((c) => c.status === 'approved')
+    .reduce((sum, claim) => sum + (Number(claim.amount) || 0), 0);
+  const pendingReview = claims
+    .filter((c) => c.status === 'flagged')
+    .reduce((sum, claim) => sum + (Number(claim.amount) || 0), 0);
+  const totalRejected = claims
+    .filter((c) => c.status === 'rejected')
+    .reduce((sum, claim) => sum + (Number(claim.amount) || 0), 0);
 
   const stats = [
-    { label: 'Total Expenses', value: formatCurrency(totalExpenses), color: 'text-white' },
-    { label: 'Approved', value: String(approvedCount), color: 'text-emerald-600' },
-    { label: 'Flagged', value: String(flaggedCount), color: 'text-amber-600' },
-    { label: 'Rejected', value: String(rejectedCount), color: 'text-rose-600' },
+    { label: 'Total Submitted', value: formatCurrency(totalSubmitted), color: 'text-white' },
+    { label: 'Total Reimbursable', value: formatCurrency(totalReimbursable), color: 'text-emerald-600' },
+    { label: 'Pending Review', value: formatCurrency(pendingReview), color: 'text-amber-600' },
+    { label: 'Total Rejected', value: formatCurrency(totalRejected), color: 'text-rose-600' },
   ];
 
   return (

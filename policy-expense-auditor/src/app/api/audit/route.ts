@@ -13,6 +13,8 @@ export async function POST(req: NextRequest) {
     const buffer = Buffer.from(await file.arrayBuffer());
 
     const supabase = createServerClient();
+    const { data: { user } } = await supabase.auth.getUser();
+
     const fileName = `${Date.now()}-${file.name.replace(/\s/g, '_')}`;
     const { data: uploadData, error: uploadError } = await supabase
       .storage
@@ -26,6 +28,7 @@ export async function POST(req: NextRequest) {
     const receiptStoragePath = uploadData.path;
 
     const extractedData = await extractReceiptData(buffer, file.type);
+    console.log('Extracted Data:', JSON.stringify(extractedData, null, 2));
 
     const manualData = {
       merchant: formData.get('merchant') as string,
@@ -58,31 +61,53 @@ export async function POST(req: NextRequest) {
       vector: embedding,
       limit: 3,
     });
+    console.log('Qdrant Search Results:', JSON.stringify(searchResult, null, 2));
 
     const policyContext = searchResult.map(r => r.payload?.content).filter(Boolean).join('\n');
     const combinedData = {
       receipt: extractedData,
       user_claim: manualData
     };
-    const verdict = await runAudit(combinedData, policyContext);
 
-    const { data: auditLog, error: logError } = await supabase.from('audit_logs').insert({ 
-      claim_id: claim.id, 
-      verdict: verdict.status, 
-      reason: verdict.reason, 
-      policy_excerpt: verdict.policy_excerpt, 
-      confidence_score: verdict.confidence_score, 
-      raw_ai_response: verdict 
-    }).select().single();
+    let verdict;
+    let auditLog;
 
-    if (logError) throw new Error(`Audit log insertion failed: ${logError.message}`);
+    try {
+      verdict = await runAudit(combinedData, policyContext);
+      console.log('Verdict from AI:', JSON.stringify(verdict));
 
-    const { error: updateError } = await supabase
-      .from('claims')
-      .update({ status: verdict.status })
-      .eq('id', claim.id);
+      // Normalize verdict status
+      const finalVerdict = verdict.status === 'compliant' ? 'approved' : verdict.status;
+      
+      // Normalize confidence score to 0-100 integer
+      let finalScore = verdict.confidence_score;
+      if (finalScore <= 1.0) {
+        finalScore = Math.round(finalScore * 100);
+      }
 
-    if (updateError) throw new Error(`Claim status update failed: ${updateError.message}`);
+      const { data: logData, error: logError } = await supabase.from('audit_logs').insert({ 
+        claim_id: claim.id, 
+        verdict: finalVerdict, 
+        reason: verdict.reason, 
+        policy_excerpt: verdict.policy_excerpt, 
+        confidence_score: finalScore, 
+        raw_ai_response: verdict 
+      }).select().single();
+
+      if (logError) throw new Error(`Audit log insertion failed: ${logError.message}`);
+      auditLog = logData;
+
+      // Update claim status with normalized verdict
+      const { error: updateError } = await supabase
+        .from('claims')
+        .update({ status: finalVerdict })
+        .eq('id', claim.id);
+
+      if (updateError) throw new Error(`Claim status update failed: ${updateError.message}`);
+    } catch (auditError) {
+      console.error('Audit processing failed:', auditError);
+      throw auditError;
+    }
 
     try {
       await sendAuditNotification({
@@ -103,7 +128,7 @@ export async function POST(req: NextRequest) {
       audit: auditLog
     });
   } catch (error) {
-    console.error('Audit Error:', error);
+    console.error('Full error:', JSON.stringify(error, null, 2));
     const message = error instanceof Error ? error.message : 'An unexpected error occurred';
     return NextResponse.json({ error: message }, { status: 500 });
   }

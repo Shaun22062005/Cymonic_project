@@ -1,16 +1,56 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { ShieldCheck } from 'lucide-react';
+import { createClient } from '@supabase/supabase-js';
+
+// Initialize Supabase client
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL || '',
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || ''
+);
 
 export default function LoginPage() {
   const router = useRouter();
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
 
-  const handleSignIn = (e: React.FormEvent) => {
+  const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
-    // In demo mode, any credentials work, redirect to dashboard
-    router.push('/dashboard');
+    setError(null);
+    setLoading(true);
+
+    const { error: signInError } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    });
+
+    if (signInError) {
+      setError(signInError.message);
+      setLoading(false);
+    } else {
+      router.push('/dashboard');
+    }
+  };
+
+  const handleSignUp = async () => {
+    setError(null);
+    setLoading(true);
+
+    const { error: signUpError } = await supabase.auth.signUp({
+      email,
+      password,
+    });
+
+    if (signUpError) {
+      setError(signUpError.message);
+    } else {
+      setError('Check your email for the confirmation link!');
+    }
+    setLoading(false);
   };
 
   return (
@@ -30,13 +70,15 @@ export default function LoginPage() {
           <form onSubmit={handleSignIn} className="space-y-6">
             <div>
               <label htmlFor="email" className="block text-sm font-medium text-gray-400 mb-2">
-                Username
+                Email
               </label>
               <input
                 id="email"
-                type="text"
+                type="email"
                 required
-                placeholder="Enter your username"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="Enter your email"
                 className="bg-gray-800 border border-gray-700 text-white rounded-lg px-4 py-3 w-full focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-transparent transition-all placeholder:text-gray-600"
               />
             </div>
@@ -49,20 +91,40 @@ export default function LoginPage() {
                 id="password"
                 type="password"
                 required
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
                 placeholder="Enter your password"
                 className="bg-gray-800 border border-gray-700 text-white rounded-lg px-4 py-3 w-full focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-transparent transition-all placeholder:text-gray-600"
               />
             </div>
 
-            <button
-              type="submit"
-              className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-xl transition-colors shadow-lg shadow-blue-600/20 active:scale-[0.98]"
-            >
-              Sign In
-            </button>
+            {error && (
+              <p className={`text-sm text-center ${error.includes('confirmation') ? 'text-green-500' : 'text-red-500'}`}>
+                {error}
+              </p>
+            )}
+
+            <div className="space-y-3">
+              <button
+                type="submit"
+                disabled={loading}
+                className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-xl transition-colors shadow-lg shadow-blue-600/20 active:scale-[0.98] disabled:opacity-50"
+              >
+                {loading ? 'Processing...' : 'Sign In'}
+              </button>
+              
+              <button
+                type="button"
+                onClick={handleSignUp}
+                disabled={loading}
+                className="w-full bg-transparent border border-gray-700 hover:border-gray-600 text-gray-300 font-medium py-3 rounded-xl transition-colors active:scale-[0.98] disabled:opacity-50"
+              >
+                Sign Up
+              </button>
+            </div>
 
             <p className="text-gray-600 text-xs text-center mt-6">
-              Demo mode — any credentials work
+              Secure authentication via Supabase
             </p>
           </form>
         </div>
